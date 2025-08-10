@@ -25,20 +25,42 @@
     PS C:\> .\STIG-ID-WN10-SO-000120/.ps1 
 #>
 
-# Define registry setting for STIG WN10-SO-000120
-$serverSignatureSetting = @{
-    Path  = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
+# STIG: WN10-SO-000120
+# Policy: Microsoft network server: Digitally sign communications (always) = Enabled
+
+$setting = @{
+    Path  = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
     Name  = "RequireSecuritySignature"
     Value = 1  # 1 = Enabled
 }
 
 # Create the registry path if it doesn't exist
-if (-not (Test-Path $serverSignatureSetting.Path)) {
-    New-Item -Path $serverSignatureSetting.Path -Force | Out-Null
+if (-not (Test-Path $setting.Path)) {
+    try {
+        New-Item -Path $setting.Path -Force | Out-Null
+        Write-Host "✅ Created missing registry path: $($setting.Path)"
+    } catch {
+        Write-Host "❌ Failed to create registry path: $($setting.Path)"
+        exit 1
+    }
 }
 
-# Set the registry value
-Set-ItemProperty -Path $serverSignatureSetting.Path -Name $serverSignatureSetting.Name -Value $serverSignatureSetting.Value -Type DWord
+# Try to set the registry value
+try {
+    Set-ItemProperty -Path $setting.Path -Name $setting.Name -Value $setting.Value -Type DWord
+    # Confirm the change
+    $actualValue = (Get-ItemProperty -Path $setting.Path -Name $setting.Name).$($setting.Name)
 
-Write-Host "Set $($serverSignatureSetting.Name) to $($serverSignatureSetting.Value) at $($serverSignatureSetting.Path) for STIG WN10-SO-000120 compliance."
+    if ($actualValue -eq $setting.Value) {
+        Write-Host "✅ STIG WN10-SO-000120 remediated successfully."
+        Write-Host "    Set $($setting.Name) = $($setting.Value) at $($setting.Path)"
+    } else {
+        Write-Host "❌ Value mismatch after setting. Expected: $($setting.Value), Found: $actualValue"
+        exit 1
+    }
+} catch {
+    Write-Host "❌ Failed to set registry value $($setting.Name) at $($setting.Path)"
+    Write-Host "    Error: $_"
+    exit 1
+}
 
