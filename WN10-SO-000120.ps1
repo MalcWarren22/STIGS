@@ -38,9 +38,9 @@ $setting = @{
 if (-not (Test-Path $setting.Path)) {
     try {
         New-Item -Path $setting.Path -Force | Out-Null
-        Write-Host " Created missing registry path: $($setting.Path)"
+        Write-Host "Created missing registry path: $($setting.Path)"
     } catch {
-        Write-Host " Failed to create registry path: $($setting.Path)"
+        Write-Host "Failed to create registry path: $($setting.Path)"
         exit 1
     }
 }
@@ -52,10 +52,10 @@ try {
     $actualValue = (Get-ItemProperty -Path $setting.Path -Name $setting.Name).$($setting.Name)
 
     if ($actualValue -eq $setting.Value) {
-        Write-Host " STIG WN10-SO-000120 remediated successfully."
+        Write-Host "STIG WN10-SO-000120 remediated successfully."
         Write-Host "    Set $($setting.Name) = $($setting.Value) at $($setting.Path)"
     } else {
-        Write-Host " Value mismatch after setting. Expected: $($setting.Value), Found: $actualValue"
+        Write-Host "Value mismatch after setting. Expected: $($setting.Value), Found: $actualValue"
         exit 1
     }
 } catch {
