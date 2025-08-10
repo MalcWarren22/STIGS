@@ -37,7 +37,7 @@ $desiredSetting = "Success"
 $currentSetting = auditpol /get /subcategory:"$subcategory" 2>&1
 
 if ($currentSetting -match "Success") {
-    Write-Host "✅ STIG WN10-AU-000082 already compliant. 'Success' auditing is enabled for '$subcategory'."
+    Write-Host "STIG WN10-AU-000082 already compliant. 'Success' auditing is enabled for '$subcategory'."
 } else {
     try {
         # Set the audit policy
@@ -46,14 +46,14 @@ if ($currentSetting -match "Success") {
         # Verify the setting
         $newSetting = auditpol /get /subcategory:"$subcategory" 2>&1
         if ($newSetting -match "Success") {
-            Write-Host "✅ STIG WN10-AU-000082 remediated successfully."
+            Write-Host "STIG WN10-AU-000082 remediated successfully."
             Write-Host "    Audit policy '$subcategory' set to: Success"
         } else {
-            Write-Host "❌ Failed to enable 'Success' auditing for '$subcategory'."
+            Write-Host "Failed to enable 'Success' auditing for '$subcategory'."
             exit 1
         }
     } catch {
-        Write-Host "❌ Error while setting audit policy for '$subcategory'."
+        Write-Host "Error while setting audit policy for '$subcategory'."
         Write-Host "    $_"
         exit 1
     }
