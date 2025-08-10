@@ -1,8 +1,6 @@
 <#
 .SYNOPSIS
-    Toggles cryptographic protocols (secure vs insecure) on the system.
-    Please test thoroughly in a non-production environment before deploying widely.
-    Make sure to run as Administrator or with appropriate privileges.
+    This PowerShell script ensures that the maximum size of the Windows Application event log is at least 32768 KB (32 MB).
 
 .NOTES
     Author          : Malcolm Warren
