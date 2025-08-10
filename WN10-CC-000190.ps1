@@ -1,9 +1,7 @@
 <#
 .SYNOPSIS
-    Toggles cryptographic protocols (secure vs insecure) on the system.
-    Please test thoroughly in a non-production environment before deploying widely.
-    Make sure to run as Administrator or with appropriate privileges.
-
+    This PowerShell script configures the Windows Registry to disable AutoPlay on all drives.
+    
 .NOTES
     Author          : Malcolm Warren
     LinkedIn        : linkedin.com/in/malcolm-warren-nsu/
