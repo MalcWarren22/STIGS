@@ -26,41 +26,43 @@
 #>
 
 # STIG: WN10-SO-000150
-# Policy: Do not allow anonymous enumeration of SAM accounts and shares = Enabled
+# Policy: Network access: Do not allow anonymous enumeration of SAM accounts and shares = Enabled
 
 $stigSetting = @{
     Path  = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
     Name  = "RestrictAnonymousSAM"
-    Value = 1  # 1 = Enabled
+    Value = 1
 }
 
-# Create the registry path if it doesn't exist
+# Ensure the registry path exists
 if (-not (Test-Path $stigSetting.Path)) {
     try {
         New-Item -Path $stigSetting.Path -Force | Out-Null
-        Write-Host "Created missing registry path: $($stigSetting.Path)"
+        Write-Host "✅ Created registry path: $($stigSetting.Path)"
     } catch {
-        Write-Host "Failed to create registry path: $($stigSetting.Path)"
+        Write-Host "❌ Failed to create registry path: $($stigSetting.Path)"
+        Write-Host "    Error: $_"
         exit 1
     }
 }
 
-# Try to set the registry value
+# Attempt to set the value
 try {
-    Set-ItemProperty -Path $stigSetting.Path -Name $stigSetting.Name -Value $stigSetting.Value -Type DWord
+    Set-ItemProperty -Path $stigSetting.Path -Name $stigSetting.Name -Value $stigSetting.Value -Type DWord -Force
 
-    # Verify the value was set correctly
+    # Verify the change
     $actualValue = (Get-ItemProperty -Path $stigSetting.Path -Name $stigSetting.Name).$($stigSetting.Name)
 
     if ($actualValue -eq $stigSetting.Value) {
-        Write-Host "STIG WN10-SO-000150 remediated successfully."
-        Write-Host "    Set $($stigSetting.Name) = $($stigSetting.Value) at $($stigSetting.Path)"
+        Write-Host "✅ STIG WN10-SO-000150 remediated successfully."
+        Write-Host "    $($stigSetting.Name) is set to $($stigSetting.Value) at $($stigSetting.Path)"
     } else {
-        Write-Host "Value mismatch after setting. Expected: $($stigSetting.Value), Found: $actualValue"
+        Write-Host "❌ STIG remediation failed. Expected $($stigSetting.Value), found $actualValue"
         exit 1
     }
 } catch {
-    Write-Host "Failed to set registry value $($stigSetting.Name) at $($stigSetting.Path)"
-    Write-Host "    Error: $_"
+    Write-Host "❌ Error setting $($stigSetting.Name) at $($stigSetting.Path)"
+    Write-Host "    $_"
     exit 1
 }
+
