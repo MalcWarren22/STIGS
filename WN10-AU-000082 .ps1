@@ -25,3 +25,36 @@
     PS C:\> .\STIG-ID-WN10-AU-000082/.ps1 
 #>
 
+# STIG: WN10-AU-000082
+# Policy: Audit File Share (Object Access) - Success must be enabled
+
+# Desired audit settings
+$category = "Object Access"
+$subcategory = "File Share"
+$desiredSetting = "Success"
+
+# Get current setting
+$currentSetting = auditpol /get /subcategory:"$subcategory" 2>&1
+
+if ($currentSetting -match "Success") {
+    Write-Host "✅ STIG WN10-AU-000082 already compliant. 'Success' auditing is enabled for '$subcategory'."
+} else {
+    try {
+        # Set the audit policy
+        auditpol /set /subcategory:"$subcategory" /success:enable | Out-Null
+
+        # Verify the setting
+        $newSetting = auditpol /get /subcategory:"$subcategory" 2>&1
+        if ($newSetting -match "Success") {
+            Write-Host "✅ STIG WN10-AU-000082 remediated successfully."
+            Write-Host "    Audit policy '$subcategory' set to: Success"
+        } else {
+            Write-Host "❌ Failed to enable 'Success' auditing for '$subcategory'."
+            exit 1
+        }
+    } catch {
+        Write-Host "❌ Error while setting audit policy for '$subcategory'."
+        Write-Host "    $_"
+        exit 1
+    }
+}
